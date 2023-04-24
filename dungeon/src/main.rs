@@ -8,6 +8,9 @@ mod prelude {
 	pub use crate::player::*;
 	pub use crate::map_builder::*;
 	pub use crate::camera::*;
+	pub use legion::*;
+	pub use legion::systems::CommandBuffer;
+	pub use legion::world::SubWorld;
 
 	pub const SCREEN_WIDTH: i32 = 80;
 	pub const SCREEN_HEIGHT: i32 = 50;
