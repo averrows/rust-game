@@ -1,16 +1,23 @@
 mod map;
-mod player;
 mod map_builder;
 mod camera;
+mod components;
+mod spawner;
+mod systems;
+
 mod prelude {
-	pub use bracket_lib::prelude::*;
 	pub use crate::map::*;
-	pub use crate::player::*;
 	pub use crate::map_builder::*;
 	pub use crate::camera::*;
+	pub use crate::components::*;
+	pub use crate::spawner::*;
+	pub use crate::systems::*;
+
 	pub use legion::*;
 	pub use legion::systems::CommandBuffer;
 	pub use legion::world::SubWorld;
+	pub use bracket_lib::prelude::*;
+
 
 	pub const SCREEN_WIDTH: i32 = 80;
 	pub const SCREEN_HEIGHT: i32 = 50;
@@ -33,11 +40,16 @@ fn main() {
 	main_loop(ctx, State::new());
 }
 
+// the state now consist of :
+// - ecs that manage the entity and component
+// - resources that manage the data that can be accessed by all entity and system
+// - systems that manage the logic of the game
 struct State {
-	map: Map,
-	player: Player,
-	camera: Camera
+	ecs: World,
+	resources: Resources,
+	systems: Schedule
 }
+
 impl GameState for State {
 	fn tick(&mut self, ctx: &mut BTerm) {
 		ctx.set_active_console(0);
@@ -45,9 +57,15 @@ impl GameState for State {
 		ctx.set_active_console(1);
 		ctx.cls();
 
-		self.player.update(ctx, &self.map, &mut self.camera);
-		self.map.render(ctx, &self.camera);
-		self.player.render(ctx, &self.camera);
+		self.resources.insert(ctx.key);
+		self.systems.execute(&mut self.ecs, &mut self.resources);
+		
+		// each system will have its own draw batch buffer
+		// when the system is executing, it will stack the drawing command into the batch
+		// after the system is done, it will draw the batch
+		// this ensure that the drawing command is executed in the correct order
+		// and preserve correctness of the drawing
+		render_draw_buffer(ctx).expect("Render error");
 	}
 }
 
@@ -55,10 +73,19 @@ impl State {
 	fn new() -> Self {
 		let mut rng = RandomNumberGenerator::new();
 		let map_builder = MapBuilder::new(&mut rng);
+
+		let mut ecs = World::default();
+		let mut resources = Resources::default();
+
+		// insert map and camera to resources
+		resources.insert(map_builder.map);
+		resources.insert(Camera::new(map_builder.player_start));
+
+		spawn_player(&mut ecs, map_builder.player_start);
 		State {
-			map: map_builder.map,
-			player: Player::new(map_builder.player_start),
-			camera: Camera::new(map_builder.player_start)
+			ecs,
+			resources,
+			systems: build_schedule()
 		}
 	}
 }
