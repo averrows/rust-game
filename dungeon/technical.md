@@ -1,3 +1,13 @@
+### How to write a function
+To write a function it is good to write the behavior we expect. By listing every behavior that we expect, we ensure complex implementation doesn't run away from the expectation. take an example:
+```
+fn some_func(){
+  - the camera should run
+  - the point rendered relative to camera
+  - position have to be updated after camera
+}
+```
+
 ### Entity Component System Architecture
 #### **entity**
 Entity is the equal representation of class in ECS. But map is not an entity, it is a resource. Resources are static, while entity are dynamic, its properties are changed overtime in response to user input.
