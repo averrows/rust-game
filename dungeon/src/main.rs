@@ -4,6 +4,7 @@ mod camera;
 mod components;
 mod spawner;
 mod systems;
+mod turn_state;
 
 mod prelude {
 	pub use crate::map::*;
@@ -12,6 +13,7 @@ mod prelude {
 	pub use crate::components::*;
 	pub use crate::spawner::*;
 	pub use crate::systems::*;
+	pub use crate::turn_state::*;
 
 	pub use legion::*;
 	pub use legion::systems::CommandBuffer;
@@ -47,7 +49,9 @@ fn main() {
 struct State {
 	ecs: World,
 	resources: Resources,
-	systems: Schedule
+	enemy_system: Schedule,
+	player_system: Schedule,
+	waiting_input_system: Schedule,
 }
 
 impl GameState for State {
@@ -58,7 +62,18 @@ impl GameState for State {
 		ctx.cls();
 
 		self.resources.insert(ctx.key);
-		self.systems.execute(&mut self.ecs, &mut self.resources);
+		let current_state = self.resources.get::<turn_state::TurnState>().unwrap().clone();
+		match current_state {
+			TurnState::WaitingInput => {
+				self.waiting_input_system.execute(&mut self.ecs, &mut self.resources)
+			} 
+			TurnState::Player => {
+				self.player_system.execute(&mut self.ecs, &mut self.resources)
+			}
+			TurnState::Enemy => {
+				self.enemy_system.execute(&mut self.ecs, &mut self.resources)
+			} 
+		}
 		
 		// each system will have its own draw batch buffer
 		// when the system is executing, it will stack the drawing command into the batch
@@ -80,6 +95,7 @@ impl State {
 		// insert map and camera to resources
 		resources.insert(map_builder.map);
 		resources.insert(Camera::new(map_builder.player_start));
+		resources.insert(TurnState::WaitingInput);
 
 		spawn_player(&mut ecs, map_builder.player_start);
 		map_builder.rooms
@@ -87,10 +103,13 @@ impl State {
 			.skip(1)
 			.map(|r| r.center())
 			.for_each(|pos| spawn_monster(&mut ecs, &mut rng, pos));
+		
 		State {
 			ecs,
 			resources,
-			systems: build_schedule()
+			player_system: build_schedule_player(),
+			enemy_system: build_schedule_enemy(),
+			waiting_input_system: build_schedule_waiting_input(),
 		}
 	}
 }

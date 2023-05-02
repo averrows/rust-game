@@ -1,4 +1,4 @@
-use crate::{prelude::*, components};
+use crate::{prelude::*};
 
 #[system]
 #[read_component(Enemy)]

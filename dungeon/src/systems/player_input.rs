@@ -5,9 +5,9 @@ use crate::prelude::*;
 #[read_component(Player)]
 pub fn player_input(
   ecs: &mut SubWorld,
-  #[resource] map: &Map,
+  commands: &mut CommandBuffer,
   #[resource] key: &Option<VirtualKeyCode>,
-  #[resource] camera: &mut Camera){
+  #[resource] turn_state: &mut TurnState){
   
   if let Some(key) = key {
     let delta = match key {
@@ -19,16 +19,13 @@ pub fn player_input(
     };
 
     if delta.x != 0 || delta.y != 0 {
-      let mut players = <&mut Point>::query()
+      let mut players = <(Entity,&Point)>::query()
         .filter(component::<Player>());
-      players.iter_mut(ecs).for_each(|pos| {
+      players.iter_mut(ecs).for_each(|(entity,pos)| {
         let destination = *pos + delta;
-        // check bounds
-        if map.can_enter_tile(destination) {
-          *pos = destination;
-          camera.on_player_move(destination);
-        }
-      })
-    }
+        commands.push(((), WantsToMove{entity: *entity, destination}));        
+    })
   }
+  *turn_state = TurnState::Player; 
+}
 }

@@ -6,16 +6,17 @@ use crate::prelude::*;
 #[read_component(MovingRandomly)]
 pub fn move_random(
   ecs: &mut SubWorld,
+  commands: &mut CommandBuffer,
   #[resource] map: &Map 
 ){
   // Goal: every monster walk randomly
   // Idea: randomly add 1 or -1 to x or y
   let mut rng = RandomNumberGenerator::new();
-  <&mut Point>::query()
+  <(Entity,&Point)>::query()
     .filter(component::<MovingRandomly>())
     .iter_mut(ecs)
-    .for_each(|pos| {
-      let diff = match rng.range(0, 5){
+    .for_each(|(entity,pos)| {
+      let diff = match rng.range(0, 20){
         0 => Point::new(1, 0),
         1 => Point::new(-1, 0),
         2 => Point::new(0, -1),
@@ -23,8 +24,9 @@ pub fn move_random(
         _ => Point::new(0, 0)
       };
       let destination = *pos + diff;
-      if map.can_enter_tile(destination){
-        *pos = destination;
-      }
+      commands.push(((), WantsToMove{
+        entity: *entity,
+        destination
+      }));
     })
 }
