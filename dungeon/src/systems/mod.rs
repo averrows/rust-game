@@ -5,6 +5,7 @@ mod collision;
 mod move_random;
 mod end_turn;
 mod movement;
+mod hud;
 use crate::prelude::*;
 
 use self::collision::collision_system;
@@ -16,6 +17,7 @@ pub fn build_schedule_waiting_input() -> Schedule {
     .flush()
     .add_system(map_render::map_render_system())
     .add_system(entity_render::entity_render_system())
+    .add_system(hud::hud_system())
     .flush()
     .build()
 }
@@ -28,6 +30,7 @@ pub fn build_schedule_player() -> Schedule {
     .flush()
     .add_system(map_render::map_render_system())
     .add_system(entity_render::entity_render_system())
+    .add_system(hud::hud_system())
     .add_system(end_turn::end_turn_system())
     .build()
 }
@@ -40,6 +43,7 @@ pub fn build_schedule_enemy() -> Schedule {
     .flush()
     .add_system(map_render::map_render_system())
     .add_system(entity_render::entity_render_system())
+    .add_system(hud::hud_system())
     .add_system(end_turn::end_turn_system())
     .build()
 }
