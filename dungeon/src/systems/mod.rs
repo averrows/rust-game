@@ -6,6 +6,7 @@ mod move_random;
 mod end_turn;
 mod movement;
 mod hud;
+mod tooltips;
 use crate::prelude::*;
 
 use self::collision::collision_system;
@@ -14,6 +15,7 @@ use self::collision::collision_system;
 pub fn build_schedule_waiting_input() -> Schedule {
   Schedule::builder()
     .add_system(player_input::player_input_system())
+    .add_system(tooltips::tooltips_system())
     .flush()
     .add_system(map_render::map_render_system())
     .add_system(entity_render::entity_render_system())
