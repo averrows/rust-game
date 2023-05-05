@@ -24,3 +24,31 @@ it query the entities and components and provide one element of game-play. One e
 
 #### **resources**
 shared data available to multiple system.
+
+### Weapon
+weapon need to live in another layer of screen.
+it will be scaled to 2 or 3 times of the screen.
+render the weapon in the position of the player transformed to the player screen + few units.
+when attacking the weapon position need to move slightly to the position of the enemy.
+
+
+### Attacking
+
+There are some cases of attacking: [attacking_system]
+- a weapon hit a target
+- a player with certain potion use a weapon to hit the target:
+here we need to increase or decrease the attack amount
+- a weapon hit a target and the target have certain potion that reduce attack received
+- a weapon hit a target and the target die. [killer_system] or here
+- weapon has quotas
+- weapon has owner
+
+#### **coarse design**
+- retrieve WantsToAttack message
+- get attack value of the weapon
+- get the position of the target and the weapon
+- the WantsToAttack message contains a tracker: frame_time
+- if frame_time < duration: change the position of the weapon to go near to the target
+- if frame_time past duration: change the position of the weapon back to the weapon owner
+- update the health of the target
+- if the health < 0, delete the health of the player
