@@ -25,4 +25,9 @@ pub struct Health {
   pub max: i32
 }
 
+pub struct Attack {
+  pub current: i32,
+  pub basic: i32,
+}
+
 pub struct Name(pub String);

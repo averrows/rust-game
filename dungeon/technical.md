@@ -42,6 +42,7 @@ here we need to increase or decrease the attack amount
 - a weapon hit a target and the target die. [killer_system] or here
 - weapon has quotas
 - weapon has owner
+- weapon can attack from far away
 
 #### **coarse design**
 - retrieve WantsToAttack message

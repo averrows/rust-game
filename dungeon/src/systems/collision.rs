@@ -1,29 +1,32 @@
 use crate::{prelude::*};
 
-#[system]
+#[system(for_each)]
 #[read_component(Enemy)]
 #[read_component(Player)]
 #[write_component(Point)]
 pub fn collision(
+  entity: &Entity,
+  player: &Player,
   ecs: &mut SubWorld,
   commands: &mut CommandBuffer,  
 ){
-  // GOAL: remove monster when it is in the same position
-  // idea: use command buffer
-  let mut player_pos = Point::new(0, 0);
-  <&Point>::query()
-    .filter(component::<Player>())
-    .iter_mut(ecs)
-    .for_each(|pos| {
-      player_pos.x = pos.x;
-      player_pos.y = pos.y;
-    });
-  
-  <(Entity, &Point)>::query()
-    .filter(component::<Enemy>())
-    .iter(ecs)
-    .filter(|(_, pos)| **pos == player_pos)
-    .for_each(|(entity, _)| {
-      commands.remove(*entity);
-    })
+
+
+  match ecs.entry_ref(*entity)
+  .unwrap().get_component::<Point>() {
+    Ok(point) => {
+    <(Entity, &Point)>::query()
+      .filter(component::<Enemy>())
+      .iter(ecs)
+      .filter(|(_, pos)| **pos == *point)
+      .for_each(|(target, _)| {
+        commands.push(((), WantsToAttack{
+          weapon: *entity,
+          target: *target
+        }));
+      })
+    },
+    Err(_) => {}
+  }
+
 }

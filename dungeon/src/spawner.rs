@@ -12,7 +12,11 @@ pub fn spawn_player(ecs: &mut World, pos: Point) {
       Health {
         current: 20,
         max: 20
-      }
+      },
+      Attack {
+        current: 1,
+        basic: 1
+      },
     )
   );
 }
