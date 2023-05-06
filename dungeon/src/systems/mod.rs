@@ -27,9 +27,9 @@ pub fn build_schedule_waiting_input() -> Schedule {
 
 pub fn build_schedule_player() -> Schedule {
   Schedule::builder()
-    .add_system(movement::movement_system())
-    .flush()
     .add_system(collision_system())
+    .flush()
+    .add_system(movement::movement_system())
     .flush()
     .add_system(attacking_system())
     .flush()

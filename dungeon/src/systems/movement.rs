@@ -2,6 +2,8 @@ use crate::prelude::*;
 
 #[system(for_each)]
 #[read_component(Player)]
+#[read_component(Enemy)]
+#[read_component(Point)]
 pub fn movement(
   entity: &Entity,
   want_move: &WantsToMove,
@@ -10,7 +12,11 @@ pub fn movement(
   ecs: &mut SubWorld,
   commands: &mut CommandBuffer
 ) {
-  if map.can_enter_tile(want_move.destination) {
+
+  let is_colliding = <&Point>::query()
+    .filter(component::<Enemy>())
+    .iter_mut(ecs).filter(|point| **point == want_move.destination).count() > 0;
+  if !is_colliding && map.can_enter_tile(want_move.destination) {
     commands.add_component(want_move.entity, want_move.destination);
     if ecs.entry_ref(want_move.entity).unwrap().get_component::<Player>().is_ok() {
       camera.on_player_move(want_move.destination);

@@ -6,27 +6,19 @@ use crate::{prelude::*};
 #[write_component(Point)]
 pub fn collision(
   entity: &Entity,
-  player: &Player,
+  want_to_move: &WantsToMove,
   ecs: &mut SubWorld,
   commands: &mut CommandBuffer,  
 ){
-
-
-  match ecs.entry_ref(*entity)
-  .unwrap().get_component::<Point>() {
-    Ok(point) => {
-    <(Entity, &Point)>::query()
-      .filter(component::<Enemy>())
-      .iter(ecs)
-      .filter(|(_, pos)| **pos == *point)
-      .for_each(|(target, _)| {
-        commands.push(((), WantsToAttack{
-          weapon: *entity,
-          target: *target
-        }));
-      })
-    },
-    Err(_) => {}
-  }
-
+  <(Entity, &Point)>::query()
+    .filter(component::<Enemy>())
+    .iter(ecs)
+    .filter(|(_, pos)| **pos == want_to_move.destination)
+    .for_each(|(target, _)| {
+      commands.push(((), WantsToAttack{
+        weapon: want_to_move.entity,
+        target: *target
+      }));
+    })
 }
+
