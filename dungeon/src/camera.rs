@@ -17,10 +17,22 @@ impl Camera {
   }
 
   pub fn on_player_move(&mut self, player_position: Point) {
-    self.left_x = player_position.x - DISPLAY_WIDTH / 2;
-    self.right_x = player_position.x + DISPLAY_WIDTH / 2;
-    self.top_y = player_position.y - DISPLAY_HEIGHT / 2;
-    self.bottom_y = player_position.y + DISPLAY_HEIGHT / 2;
+    if player_position.x == self.left_x - 1 {
+      self.left_x -= DISPLAY_WIDTH;
+      self.right_x -= DISPLAY_WIDTH;
+    }
+    if player_position.x == self.right_x + 1 {
+      self.left_x += DISPLAY_WIDTH;
+      self.right_x += DISPLAY_WIDTH;
+    }
+    if player_position.y == self.top_y - 1 {
+      self.top_y -= DISPLAY_HEIGHT;
+      self.bottom_y -= DISPLAY_HEIGHT;
+    }
+    if player_position.y == self.bottom_y + 1 {
+      self.top_y += DISPLAY_HEIGHT;
+      self.bottom_y += DISPLAY_HEIGHT;
+    }
   }
 
   pub fn get_offset(&self) -> Point {
