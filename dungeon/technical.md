@@ -53,3 +53,8 @@ here we need to increase or decrease the attack amount
 - if frame_time past duration: change the position of the weapon back to the weapon owner
 - update the health of the target
 - if the health < 0, delete the health of the player
+
+
+### level based system
+- there will be 5 levels
+- each level have different map and configuration of monsters
